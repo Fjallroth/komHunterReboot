@@ -5,6 +5,7 @@ const UserSchema = new mongoose.Schema({
   userName: { type: String, unique: true },
   userStravaAccount: { type: String, required: false },
   UserStravaToken: { type: String, required: false },
+  userStravaAccess: { type: String, required: false },
   userStravaRefresh: { type: String, required: false },
   userStravaFirstName:{ type: String, required: false },
   userStravaLastName:{ type: String, required: false },

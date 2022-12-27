@@ -72,36 +72,27 @@ module.exports = {
                     UserStravaToken: req.query.code
                 })
                 console.log('Token added to user')
+                fetch(`https://www.strava.com/oauth/token?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}&code=${req.user.UserStravaToken}&grant_type=authorization_code`, {
+    method: 'POST',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+})
+.then(response => response.json())
+.then(async response =>  await User.findOneAndUpdate({_id:req.user.id}, {
+                       userStravaAccount: response.athlete.id, 
+                       userStravaAccess: response.access_token, 
+                       userStravaFirstName: response.athlete.firstname,
+                       userStravaLastName: response.athlete.lastname,
+                       userStravaRefresh: response.refresh_token,
+                       userStravaPic: response.athlete.profile
+                     },{
+                       new: true}))
                 res.redirect('/todos')
             }catch(err){
                 console.log(err)
             }
         }
+        
 }
-        //passport.authenticate('strava', { failureRedirect: '/auth/strava' }),
-          //console.log(req.query)
-          //console.log(req.query.code)
-        //   req.post(
-        //     `https://www.strava.com/oauth/token?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}&code=${req.query.code}&grant_type=authorization_code`,
-        //     { json: { key: 'value' } },
-        //     async function (error, response, body) {
-        //         if (!error && response.statusCode == 200) {
-        //             console.log(body);
-                    
-        //         }//problem here with user.id not being available
-//                 await User.findOneAndUpdate({userId:req.user.id}, {
-//                   userStravaAccount: response.body.athlete.id, 
-//                   userStravaToken: response.body.access_token, 
-//                   userStravaFirstName: response.body.athlete.firstname,
-//                   userStravaLastName: response.body.athlete.lastname,
-//                   userStravaRefresh: response.body.refresh_token,
-//                   userStravaPic: response.body.athlete.profile
-//                 },{
-//                   new: true
-//                 });
-//             }
-//         );
-      
-//         res.redirect('/todos');
-
-//         }
