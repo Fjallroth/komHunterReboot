@@ -17,4 +17,6 @@ router.get('/linkStrava', todosController.linkStrava)
 
 router.get('/StravaCallback', todosController.stravaCallback)
 
+router.get('/getUserData', todosController.getUserData)
+
 module.exports = router

@@ -66,33 +66,43 @@ module.exports = {
         })
       },
       stravaCallback: async (req, res, next) => {
-            try{
-                console.log(req.query.code)
-                await User.findOneAndUpdate({_id:req.user.id},{
-                    UserStravaToken: req.query.code
-                })
-                console.log('Token added to user')
-                fetch(`https://www.strava.com/oauth/token?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}&code=${req.user.UserStravaToken}&grant_type=authorization_code`, {
+        try{
+            console.log(req.query.code)
+            await User.findOneAndUpdate({_id:req.user.id},{
+                UserStravaToken: req.query.code
+            })
+        }
+        catch(err){
+            console.log(err)
+        } 
+        res.render('step2.ejs')
+    },       
+    getUserData: async (req , res) => {
+        if(req.user){
+    await fetch(`https://www.strava.com/oauth/token?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}&code=${req.user.UserStravaToken}&grant_type=authorization_code`, {
     method: 'POST',
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     },
 })
-.then(response => response.json())
-.then(async response =>  await User.findOneAndUpdate({_id:req.user.id}, {
-                       userStravaAccount: response.athlete.id, 
-                       userStravaAccess: response.access_token, 
-                       userStravaFirstName: response.athlete.firstname,
-                       userStravaLastName: response.athlete.lastname,
-                       userStravaRefresh: response.refresh_token,
-                       userStravaPic: response.athlete.profile
-                     },{
-                       new: true}))
-                res.redirect('/todos')
-            }catch(err){
-                console.log(err)
-            }
-        }
-        
+.then(res => res.json())
+.then(data =>{
+    console.log(data)
+    User.findOneAndUpdate({_id:req.user.id}, {
+        userStravaAccount: data.athlete.id, 
+        userStravaAccess: data.access_token, 
+        userStravaFirstName: data.athlete.firstname,
+        userStravaLastName: data.athlete.lastname,
+        userStravaRefresh: data.refresh_token,
+        userStravaPic: data.athlete.profile
+      },{
+        new: true})
+
+}).catch(err => {
+        console.log(`error ${err}`)
+     })
+ 
 }
+res.redirect('/todos') 
+}}
