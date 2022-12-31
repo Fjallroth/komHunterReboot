@@ -5,6 +5,18 @@ const STRAVA_CLIENT_ID = process.env.STRAVA_CLIENT_ID
 const STRAVA_CLIENT_SECRET = process.env.STRAVA_CLIENT_SECRET 
 const callbackURL = 'http://127.0.0.1:2121/todos/StravaCallback'
 
+async function updateUserWithData(data, userid){
+    await User.findOneAndUpdate({_id:userid}, {
+    userStravaAccount: data.athlete.id, 
+    userStravaAccess: data.access_token, 
+    userStravaFirstName: data.athlete.firstname,
+    userStravaLastName: data.athlete.lastname,
+    userStravaRefresh: data.refresh_token,
+    userStravaPic: data.athlete.profile
+  },{
+    new: true})
+     
+}
 module.exports = {
     getTodos: async (req,res)=>{
         console.log(req.user)
@@ -69,40 +81,38 @@ module.exports = {
         try{
             console.log(req.query.code)
             await User.findOneAndUpdate({_id:req.user.id},{
-                UserStravaToken: req.query.code
+                userStravaToken: req.query.code
             })
         }
         catch(err){
             console.log(err)
         } 
-        res.render('step2.ejs')
+        res.redirect('/todos/getUserData') 
     },       
     getUserData: async (req , res) => {
-        if(req.user){
-    await fetch(`https://www.strava.com/oauth/token?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}&code=${req.user.UserStravaToken}&grant_type=authorization_code`, {
+        const userid = req.user.id
+    await fetch(`https://www.strava.com/oauth/token?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}&code=${req.user.userStravaToken}&grant_type=authorization_code`, {
     method: 'POST',
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
-    },
-})
-.then(res => res.json())
-.then(data =>{
-    console.log(data)
-    User.findOneAndUpdate({_id:req.user.id}, {
-        userStravaAccount: data.athlete.id, 
-        userStravaAccess: data.access_token, 
-        userStravaFirstName: data.athlete.firstname,
-        userStravaLastName: data.athlete.lastname,
-        userStravaRefresh: data.refresh_token,
-        userStravaPic: data.athlete.profile
-      },{
-        new: true})
-
-}).catch(err => {
-        console.log(`error ${err}`)
-     })
- 
-}
-res.redirect('/todos') 
-}}
+    }
+    })
+    .then(res => res.json())
+    .then(data =>{updateUserWithData(data, userid)})
+    res.redirect('/todos')
+    }}
+   
+// await(res => res.json())
+// await(data =>{
+//     console.log(data)
+//     console.log(req.user.id)
+//     User.findOneAndUpdate({_id:req.user.id}, {
+//         userStravaAccount: data.athlete.id, 
+//         userStravaAccess: data.access_token, 
+//         userStravaFirstName: data.athlete.firstname,
+//         userStravaLastName: data.athlete.lastname,
+//         userStravaRefresh: data.refresh_token,
+//         userStravaPic: data.athlete.profile
+//       },{
+//         new: true})

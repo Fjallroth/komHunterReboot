@@ -15,8 +15,8 @@ router.delete('/deleteTodo', todosController.deleteTodo)
 
 router.get('/linkStrava', todosController.linkStrava)
 
-router.get('/StravaCallback', todosController.stravaCallback)
+router.get('/StravaCallback', ensureAuth, todosController.stravaCallback)
 
-router.get('/getUserData', todosController.getUserData)
+router.get('/getUserData', ensureAuth, todosController.getUserData)
 
 module.exports = router
