@@ -12,7 +12,9 @@ async function updateUserWithData(data, userid){
     userStravaFirstName: data.athlete.firstname,
     userStravaLastName: data.athlete.lastname,
     userStravaRefresh: data.refresh_token,
-    userStravaPic: data.athlete.profile
+    userStravaPic: data.athlete.profile,
+    usertokenExpire: data.expires_at,
+    userSex: data.athlete.sex
   },{
     new: true})
      
@@ -102,17 +104,3 @@ module.exports = {
     .then(data =>{updateUserWithData(data, userid)})
     res.redirect('/todos')
     }}
-   
-// await(res => res.json())
-// await(data =>{
-//     console.log(data)
-//     console.log(req.user.id)
-//     User.findOneAndUpdate({_id:req.user.id}, {
-//         userStravaAccount: data.athlete.id, 
-//         userStravaAccess: data.access_token, 
-//         userStravaFirstName: data.athlete.firstname,
-//         userStravaLastName: data.athlete.lastname,
-//         userStravaRefresh: data.refresh_token,
-//         userStravaPic: data.athlete.profile
-//       },{
-//         new: true})

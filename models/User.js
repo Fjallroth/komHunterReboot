@@ -11,6 +11,8 @@ const UserSchema = new mongoose.Schema({
   userStravaLastName:{ type: String, required: false },
   userStravaPic: {type: String, required: false},
   email: { type: String, unique: true },
+  usertokenExpire:{ type: String, required: false },
+  userSex:{ type: String, required: false },
   password: String
 })
 
