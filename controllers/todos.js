@@ -19,11 +19,28 @@ async function updateUserWithData(data, userid){
     new: true})
      
 }
-async function listActivities(data){
+async function listActivities(data, userid){
+     const userprofile = await User.findOne({_id:userid})
+     console.log(userprofile)
+     const activitylist = userprofile.userActivitylist
     for(let i=0; i < data.length; i++){
+        if(activitylist.includes(data[i].id) == false){
+        await User.findOneAndUpdate({_id:userid},
+            { $push: { userActivitylist: data[i].id  } },
+  function (error, success) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log(success);
+        }
+        })
         console.log(data[i].id)
     }
-}
+    else{
+        console.log(`${data[i].id} is already in the user activity list`)
+        continue
+    } 
+}}
 module.exports = {
     getTodos: async (req,res)=>{
         console.log(req.user)
@@ -110,9 +127,10 @@ module.exports = {
     res.redirect('/todos')
     },
     getActivities: async (req, res) =>{
+        const userid = req.user.id
     await fetch(`https://www.strava.com/api/v3/athlete/activities?access_token=${req.user.userStravaAccess}`)
     .then(res => res.json())
-    .then(data=> listActivities(data) )
+    .then(data=> listActivities(data, userid) )
     res.redirect('/todos')
     }
 }

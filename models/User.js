@@ -13,6 +13,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   usertokenExpire:{ type: String, required: false },
   userSex:{ type: String, required: false },
+  userActivitylist:{ type: Array, required: false },
   password: String
 })
 
