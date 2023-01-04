@@ -19,6 +19,11 @@ async function updateUserWithData(data, userid){
     new: true})
      
 }
+async function listActivities(data){
+    for(let i=0; i < data.length; i++){
+        console.log(data[i].id)
+    }
+}
 module.exports = {
     getTodos: async (req,res)=>{
         console.log(req.user)
@@ -103,4 +108,11 @@ module.exports = {
     .then(res => res.json())
     .then(data =>{updateUserWithData(data, userid)})
     res.redirect('/todos')
-    }}
+    },
+    getActivities: async (req, res) =>{
+    await fetch(`https://www.strava.com/api/v3/athlete/activities?access_token=${req.user.userStravaAccess}`)
+    .then(res => res.json())
+    .then(data=> listActivities(data) )
+    res.redirect('/todos')
+    }
+}

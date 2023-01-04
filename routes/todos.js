@@ -13,10 +13,12 @@ router.put('/markIncomplete', todosController.markIncomplete)
 
 router.delete('/deleteTodo', todosController.deleteTodo)
 
-router.get('/linkStrava', todosController.linkStrava)
+router.get('/linkStrava', ensureAuth, todosController.linkStrava)
 
 router.get('/StravaCallback', ensureAuth, todosController.stravaCallback)
 
 router.get('/getUserData', ensureAuth, todosController.getUserData)
+
+router.get('/getActivities', ensureAuth, todosController.getActivities)
 
 module.exports = router
