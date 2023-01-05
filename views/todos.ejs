@@ -12,7 +12,8 @@
     <ul>
     <% todos.forEach( el => { %>
             <li class='todoItem' data-id='<%=el._id%>'>
-                <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.todo %></span>
+                <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.segmentName %></span>
+                <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.segmentId %></span>
                 <span class='del'> Delete </span>
             </li>
     <% }) %>    
@@ -28,6 +29,8 @@
     <a href="/logout">Logout</a>
     <a href="todos/linkStrava">Link your Strava Account!</a>
     <a href="todos/getActivities">Get activities!</a>
+    <a href="todos/getSegments">Get effort list!</a>
+    
 
     <script src="js/main.js"></script>
 </body>

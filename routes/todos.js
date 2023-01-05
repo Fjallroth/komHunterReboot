@@ -21,4 +21,6 @@ router.get('/getUserData', ensureAuth, todosController.getUserData)
 
 router.get('/getActivities', ensureAuth, todosController.getActivities)
 
+router.get('/getSegments', ensureAuth, todosController.getSegments)
+
 module.exports = router

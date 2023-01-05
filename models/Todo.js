@@ -1,7 +1,12 @@
 const mongoose = require('mongoose')
 
 const TodoSchema = new mongoose.Schema({
-  todo: {
+  segmentId: {
+    type: String,
+    required: true, 
+    unique: true,
+  },
+  segmentName: {
     type: String,
     required: true,
   },

@@ -26,14 +26,7 @@ async function listActivities(data, userid){
     for(let i=0; i < data.length; i++){
         if(activitylist.includes(data[i].id) == false){
         await User.findOneAndUpdate({_id:userid},
-            { $push: { userActivitylist: data[i].id  } },
-  function (error, success) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log(success);
-        }
-        })
+            { $push: { userActivitylist: data[i].id  } })
         console.log(data[i].id)
     }
     else{
@@ -41,6 +34,22 @@ async function listActivities(data, userid){
         continue
     } 
 }}
+async function getActivitySegments(data, userid){
+          const efforts = data.segment_efforts
+          console.log(data)
+          for(let i=0; i < efforts.length ; i++){ 
+            const todoItems = await Todo.find({userId:userid})
+            if(todoItems.includes(efforts[i].segment.id) == false){
+            await Todo.create({segmentId: efforts[i].segment.id, segmentName: efforts[i].segment.name, completed: false, userId: userid})
+            console.log('Effort has been added!')
+            }
+            else{
+                console.log(`${efforts[i].segment.id} is already in the user activity list`)
+                continue
+            } 
+            console.log(todoItems)
+          }
+}
 module.exports = {
     getTodos: async (req,res)=>{
         console.log(req.user)
@@ -132,5 +141,15 @@ module.exports = {
     .then(res => res.json())
     .then(data=> listActivities(data, userid) )
     res.redirect('/todos')
+    },
+    getSegments: async (req, res) =>{
+        const userid = req.user.id
+        const userActivityList = req.user.userActivitylist
+        userActivityList.forEach(element => { 
+           fetch(`https://www.strava.com/api/v3/activities/${element}?access_token=${req.user.userStravaAccess}`)
+           .then(res => res.json())
+           .then(data=> getActivitySegments(data, userid) ) 
+        })
+        res.redirect('/todos')          
     }
 }
