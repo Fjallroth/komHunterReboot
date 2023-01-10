@@ -4,10 +4,13 @@ const TodoSchema = new mongoose.Schema({
   segmentId: {
     type: String,
     required: true, 
-    unique: true,
   },
   segmentName: {
     type: String,
+    required: true,
+  },
+  segmentTime:{
+    type: Number,
     required: true,
   },
   completed: {
