@@ -4,6 +4,22 @@ require('dotenv').config({path: './config/.env'})
 const STRAVA_CLIENT_ID = process.env.STRAVA_CLIENT_ID 
 const STRAVA_CLIENT_SECRET = process.env.STRAVA_CLIENT_SECRET 
 const callbackURL = 'http://127.0.0.1:2121/todos/StravaCallback'
+const axios = require("axios")
+const cheerio = require("cheerio")
+
+const url = "https://www.strava.com/segments/22058575"
+
+async function getXom(){
+    try{
+        const response = await axios.get(url);
+        const $=cheerio.load(response.data)
+        const xom = $("body > div:nth-child(14) > div:nth-child(2) > div.sidebar.col-md-4 > div:nth-child(1) > ul > li:nth-child(2) > div.SegmentDetailsSideBar--data--q\+aH7 > div:nth-child(1) > div.AvatarWithDataRow--row-data--gcnuL > div.AvatarWithDataRow--call-out-row--FI8f- > ul > li > div > div.AvatarWithDataRow--call-out-effort--cfToQ").text();
+        console.log(xom)
+    }
+    catch(error){
+        console.error(error);
+    }
+}
 
 async function updateUserWithData(data, userid){
     await User.findOneAndUpdate({_id:userid}, {
