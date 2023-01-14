@@ -9,18 +9,50 @@ const cheerio = require("cheerio")
 
 const url = "https://www.strava.com/segments/22058575"
 
-async function getXom(){
+function hmsToSecondsOnly(str) {
+    let p = str.split(':'),
+        s = 0, m = 1;
+
+    while (p.length > 0) {
+        s += m * parseInt(p.pop(), 10);
+        m *= 60;
+    }
+
+    return s;
+}
+async function getXom(segmentid, userid){
+    const url = `https://www.strava.com/segments/${segmentid}`
     try{
         const response = await axios.get(url);
-        const $=cheerio.load(response.data)
-        const xom = $("body > div:nth-child(14) > div:nth-child(2) > div.sidebar.col-md-4 > div:nth-child(1) > ul > li:nth-child(2) > div.SegmentDetailsSideBar--data--q\+aH7 > div:nth-child(1) > div.AvatarWithDataRow--row-data--gcnuL > div.AvatarWithDataRow--call-out-row--FI8f- > ul > li > div > div.AvatarWithDataRow--call-out-effort--cfToQ").text();
-        console.log(xom)
+        const $ = cheerio.load(response.data);
+        const leaders = []
+        const atags =$('tr').each((i, el) =>{
+            const item =$(el).text()
+            const items =item.split('\n')
+            if(items.toString().includes(':')){
+            const rank = (parseInt(items.toString().split(',').slice(1,2)))
+            const name = (items.toString().split(',').slice(2,3).toString())
+            const time = (items.toString().split(',').slice(-2,-1).toString())
+            const timeInSeconds = hmsToSecondsOnly(time)
+            const contender = {timeInSeconds, rank, name}
+            leaders.push(contender)
+        }
+            
+        })
+        await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
+            leaderBoard: leaders    
+            })
+        console.log(leaders)
     }
     catch(error){
         console.error(error);
     }
 }
-
+async function updatePR(segmentid, newSegmentTime, userid){
+    await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
+    segmentTime: newSegmentTime    
+    })
+}
 async function updateUserWithData(data, userid){
     await User.findOneAndUpdate({_id:userid}, {
     userStravaAccount: data.athlete.id, 
@@ -54,14 +86,27 @@ async function getActivitySegments(data, userid){
           const efforts = data.segment_efforts
           console.log(data)
           for(let i=0; i < efforts.length ; i++){ 
-            const todoItems = await Todo.find({userId:userid})
-            if(todoItems.includes(efforts[i].segment.id) == false){
+            const todoItems = await Todo.find({userId:userid, segmentId: efforts[i].segment.id })
+            console.log(todoItems)
+            if(todoItems.length == 0){
             await Todo.create({segmentId: efforts[i].segment.id, segmentName: efforts[i].segment.name, segmentTime: efforts[i].elapsed_time, completed: false, userId: userid})
             console.log('Effort has been added!')
         }
             else{
-                console.log(`${efforts[i].segment.id} is already in the user activity list`)
-                continue
+                if(todoItems[0].segmentTime > efforts[i].elapsed_time){
+                    const newSegmentTime =  parseInt(efforts[i].elapsed_time)
+                    const segmentid = efforts[i].segment.id
+                    updatePR(segmentid, newSegmentTime, userid)
+                    console.log(`${efforts[i].segment.name} now has a faster time of ${efforts[i].elapsed_time}`)
+                    }
+                    
+                else{
+                    console.log(`${efforts[i].segment.id} is already in the user activity list`)
+                    //getXom(efforts[i].segment.id)
+                    console.log(getXom(efforts[i].segment.id, userid))
+                    continue
+                }
+                
             } 
             console.log(todoItems)
           }

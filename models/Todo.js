@@ -3,23 +3,27 @@ const mongoose = require('mongoose')
 const TodoSchema = new mongoose.Schema({
   segmentId: {
     type: String,
-    required: true, 
+    required: false, 
   },
   segmentName: {
     type: String,
-    required: true,
+    required: false,
   },
   segmentTime:{
     type: Number,
-    required: true,
+    required: false,
   },
   completed: {
     type: Boolean,
-    required: true,
+    required: false,
   },
   userId: {
     type: String,
     required: true
+  },
+  leaderBoard: {
+    type: Array,
+    required: false
   }
 })
 
