@@ -87,7 +87,6 @@ async function getActivitySegments(data, userid){
           console.log(data)
           for(let i=0; i < efforts.length ; i++){ 
             const todoItems = await Todo.find({userId:userid, segmentId: efforts[i].segment.id })
-            console.log(todoItems)
             if(todoItems.length == 0){
             await Todo.create({segmentId: efforts[i].segment.id, segmentName: efforts[i].segment.name, segmentTime: efforts[i].elapsed_time, completed: false, userId: userid})
             console.log('Effort has been added!')
@@ -102,8 +101,7 @@ async function getActivitySegments(data, userid){
                     
                 else{
                     console.log(`${efforts[i].segment.id} is already in the user activity list`)
-                    //getXom(efforts[i].segment.id)
-                    console.log(getXom(efforts[i].segment.id, userid))
+                    getXom(efforts[i].segment.id, userid)
                     continue
                 }
                 
