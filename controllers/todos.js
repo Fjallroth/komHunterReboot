@@ -7,8 +7,6 @@ const callbackURL = 'http://127.0.0.1:2121/todos/StravaCallback'
 const axios = require("axios")
 const cheerio = require("cheerio")
 
-const url = "https://www.strava.com/segments/22058575"
-
 function hmsToSecondsOnly(str) {
     let p = str.split(':'),
         s = 0, m = 1;
@@ -19,6 +17,75 @@ function hmsToSecondsOnly(str) {
     }
 
     return s;
+}
+async function leaderBoard(segmentid, userid){
+        const segment = await Todo.find({userId: userid, segmentId: segmentid })
+        const xomTime = segment[0].leaderBoard[0].timeInSeconds
+        const userTime = segment[0].segmentTime
+        const timeOffXom = userTime - xomTime
+        const percentageOff = (((timeOffXom) / xomTime)*100).toFixed(1)
+        if(userTime == xomTime){
+            console.log("You have the KOM")
+        }
+        else if(userTime <= segment[0].leaderBoard[1].timeInSeconds){
+            console.log(`You are rank ${segment[0].leaderBoard[1].rank} on the leaderboard`)
+            console.log(`You need to ride ${timeOffXom} seconds faster to have the fastest time, that's ${percentageOff}% faster`)
+        }
+        else if(userTime <= segment[0].leaderBoard[2].timeInSeconds){
+            console.log(`You are rank ${segment[0].leaderBoard[2].rank} on the leaderboard`)
+            console.log(`You need to ride ${timeOffXom} seconds faster to have the fastest time, that's ${percentageOff}% faster`)
+        }
+        else if(userTime <= segment[0].leaderBoard[3].timeInSeconds){
+            console.log(`You are rank ${segment[0].leaderBoard[3].rank} on the leaderboard`)
+            console.log(`You need to ride ${timeOffXom} seconds faster to have the fastest time, that's ${percentageOff}% faster`)
+        }
+        else if(userTime <= segment[0].leaderBoard[4].timeInSeconds){
+            console.log(`You are rank ${segment[0].leaderBoard[4].rank} on the leaderboard`)
+            console.log(`You need to ride ${timeOffXom} seconds faster to have the fastest time, that's ${percentageOff}% faster`)
+        }
+        else if(userTime <= segment[0].leaderBoard[5].timeInSeconds){
+            console.log(`You are rank ${segment[0].leaderBoard[5].rank} on the leaderboard`)
+            console.log(`You need to ride ${timeOffXom} seconds faster to have the fastest time, that's ${percentageOff}% faster`)
+        }
+        else if(userTime <= segment[0].leaderBoard[6].timeInSeconds){
+            console.log(`You are rank ${segment[0].leaderBoard[6].rank} on the leaderboard`)
+            console.log(`You need to ride ${timeOffXom} seconds faster to have the fastest time, that's ${percentageOff}% faster`)
+        }
+        else if(userTime <= segment[0].leaderBoard[7].timeInSeconds){
+            console.log(`You are rank ${segment[0].leaderBoard[7].rank} on the leaderboard`)
+            console.log(`You need to ride ${timeOffXom} seconds faster to have the fastest time, that's ${percentageOff}% faster`)
+        }
+        else if(userTime <= segment[0].leaderBoard[8].timeInSeconds){
+            console.log(`You are rank ${segment[0].leaderBoard[8].rank} on the leaderboard`)
+            console.log(`You need to ride ${timeOffXom} seconds faster to have the fastest time, that's ${percentageOff}% faster`)
+        }
+        else if(userTime <= segment[0].leaderBoard[9].timeInSeconds){
+            console.log(`You are rank ${segment[0].leaderBoard[9].rank} on the leaderboard`)
+            console.log(`You need to ride ${timeOffXom} seconds faster to have the fastest time, that's ${percentageOff}% faster`)
+        }
+        else{
+            const tenthTime = segment[0].leaderBoard[9].timeInSeconds
+            const timeOffTenth = userTime - tenthTime
+            const percentageOffLB = (((timeOffTenth) / tenthTime)*100).toFixed(1)
+            console.log(`You need to ride ${timeOffTenth} seconds faster to get on the leaderboard, that's ${percentageOffLB}% faster`)
+            console.log(`You need to ride ${timeOffXom} seconds faster to have the fastest time, that's ${percentageOff}% faster`)
+        }
+        console.log(xomTime)
+        console.log(userTime)
+        console.log(timeOffXom)
+        console.log(percentageOff)
+}
+
+
+async function timeOffXom(segmentid, userid){
+    const segment = await Todo.find({userId:userid, segmentId: segmentid })
+    const xomTime = segment[0].leaderBoard[0].timeInSeconds
+    const userTime = segment[0].segmentTime
+    const timeOffXom = userTime - xomTime
+    const percentageOff = (((timeOffXom) / userTime)*100).toFixed(1)
+    await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
+        timeOff: timeOffXom   
+        })
 }
 async function getXom(segmentid, userid){
     const url = `https://www.strava.com/segments/${segmentid}`
@@ -71,15 +138,15 @@ async function listActivities(data, userid){
      const userprofile = await User.findOne({_id:userid})
      console.log(userprofile)
      const activitylist = userprofile.userActivitylist
-    for(let i=0; i < data.length; i++){
-        if(activitylist.includes(data[i].id) == false){
-        await User.findOneAndUpdate({_id:userid},
-            { $push: { userActivitylist: data[i].id  } })
-        console.log(data[i].id)
+        for(let i=0; i < data.length; i++){
+            if(activitylist.includes(data[i].id) == false){
+            await User.findOneAndUpdate({_id:userid},
+                { $push: { userActivitylist: data[i].id  } })
+            console.log(data[i].id)
     }
-    else{
-        console.log(`${data[i].id} is already in the user activity list`)
-        continue
+        else{
+         console.log(`${data[i].id} is already in the user activity list`)
+         continue
     } 
 }}
 async function getActivitySegments(data, userid){
@@ -88,8 +155,15 @@ async function getActivitySegments(data, userid){
           for(let i=0; i < efforts.length ; i++){ 
             const todoItems = await Todo.find({userId:userid, segmentId: efforts[i].segment.id })
             if(todoItems.length == 0){
-            await Todo.create({segmentId: efforts[i].segment.id, segmentName: efforts[i].segment.name, segmentTime: efforts[i].elapsed_time, completed: false, userId: userid})
-            console.log('Effort has been added!')
+            await Todo.create({
+                segmentId: efforts[i].segment.id, 
+                segmentName: efforts[i].segment.name, 
+                segmentTime: efforts[i].elapsed_time, 
+                completed: false, 
+                userId: userid})
+                getXom(efforts[i].segment.id, userid)
+                timeOffXom(efforts[i].segment.id, userid)
+                console.log('Effort has been added!')
         }
             else{
                 if(todoItems[0].segmentTime > efforts[i].elapsed_time){
@@ -97,11 +171,14 @@ async function getActivitySegments(data, userid){
                     const segmentid = efforts[i].segment.id
                     updatePR(segmentid, newSegmentTime, userid)
                     console.log(`${efforts[i].segment.name} now has a faster time of ${efforts[i].elapsed_time}`)
+                    getXom(efforts[i].segment.id, userid)
+                    timeOffXom(efforts[i].segment.id, userid)
                     }
                     
                 else{
                     console.log(`${efforts[i].segment.id} is already in the user activity list`)
                     getXom(efforts[i].segment.id, userid)
+                    timeOffXom(efforts[i].segment.id, userid)
                     continue
                 }
                 
@@ -116,6 +193,9 @@ module.exports = {
             const todoItems = await Todo.find({userId:req.user.id})
             const itemsLeft = await Todo.countDocuments({userId:req.user.id,completed: false})
             res.render('todos.ejs', {todos: todoItems, left: itemsLeft, user: req.user})
+            leaderBoard("6911346", req.user.id)
+            leaderBoard("29006402", req.user.id)
+            
         }catch(err){
             console.log(err)
         }

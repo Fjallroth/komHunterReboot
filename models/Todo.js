@@ -24,6 +24,10 @@ const TodoSchema = new mongoose.Schema({
   leaderBoard: {
     type: Array,
     required: false
+  },
+  timeOff: {
+    type: Number,
+    required: false
   }
 })
 
