@@ -20,6 +20,7 @@ function hmsToSecondsOnly(str) {
 }
 async function komHunter(segmentid, userid){
         const segment = await Todo.find({userId: userid, segmentId: segmentid })
+        if(segment[0].leaderBoard.length >=10){
         console.log(segmentid)
         console.log(segment[0].segmentName)
         console.log(segment[0].leaderBoard)
@@ -32,9 +33,6 @@ async function komHunter(segmentid, userid){
             timeOffXom: timeOffXom,
             percentageOff:  percentageOff
             })
-        if(segment[0].leaderBoard.length >=10){
-
-        
         if(userTime == xomTime){
             console.log("You have the KOM")
             await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
@@ -102,7 +100,7 @@ async function komHunter(segmentid, userid){
     }
 } 
 async function getXom(segmentid, userid){
-    const url = `https://www.strava.com/segments/${segmentid}`
+    const url = await `https://www.strava.com/segments/${segmentid}`
     try{
         const response = await axios.get(url);
         const $ = cheerio.load(response.data);
@@ -259,9 +257,7 @@ module.exports = {
         if (req.user) {
           return res.redirect(`https://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${callbackURL}&response_type=code&scope=activity:read_all`)
         }
-        res.render('signup', {
-          title: 'Create Account'
-        })
+        res.redirect('/todos')
       },
       stravaCallback: async (req, res, next) => {
         try{
