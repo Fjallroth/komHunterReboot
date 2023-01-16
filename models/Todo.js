@@ -25,10 +25,30 @@ const TodoSchema = new mongoose.Schema({
     type: Array,
     required: false
   },
-  timeOff: {
+  timeOffXom: {
     type: Number,
     required: false
-  }
+  },
+  xomTime: {
+    type: Number,
+    required: false
+  },
+  timeOffLB:{
+    type: Number,
+    required: false
+  },
+  percentageOff: {
+    type: Number,
+    required: false
+  },
+  percentOffLB:{
+    type: Number,
+    required: false
+  },
+  rank: {
+    type: Number,
+    required: false
+}
 })
 
 module.exports = mongoose.model('Todo', TodoSchema)
