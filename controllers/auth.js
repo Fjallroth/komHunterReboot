@@ -22,7 +22,7 @@ const User = require('../models/User')
     }
     req.body.email = validator.normalizeEmail(req.body.email, { gmail_remove_dots: false })
   
-    passport.authenticate('local', (err, user, info) => {
+    passport.authenticate('local',{failureRedirect: '/login', failureFlash: true, keepSessionInfo: true }, (err, user, info) => { //double check this
       if (err) { return next(err) }
       if (!user) {
         req.flash('errors', info)

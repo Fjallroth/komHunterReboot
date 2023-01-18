@@ -116,12 +116,12 @@ async function getXom(segmentid, userid){
             const contender = {timeInSeconds, rank, name}
             leaders.push(contender)
         }
-            
         })
+        if(leaders.length>1){
         await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
             leaderBoard: leaders    
             })
-        console.log(leaders)
+        console.log(leaders)}
     }
     catch(error){
         console.error(error);
@@ -201,6 +201,17 @@ async function getActivitySegments(data, userid){
             console.log(todoItems)
           }
 }
+async function getUserData(userid, userStravaToken){
+await fetch(`http://www.strava.com/oauth/token?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}&code=${userStravaToken}&grant_type=authorization_code`, {
+method: 'POST',
+headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+}
+})
+.then(res => res.json())
+.then(data =>{updateUserWithData(data, userid)})
+}
 module.exports = {
     getTodos: async (req,res)=>{
         console.log(req.user)
@@ -253,15 +264,20 @@ module.exports = {
             console.log(err)
         }
     },
-    linkStrava: (req, res) => {
+    linkStrava: (req, res, next) => {
         if (req.user) {
-          return res.redirect(`https://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${callbackURL}&response_type=code&scope=activity:read_all`)
-        }
+            console.log(req.sessionID)
+          const state = req.sessionID;
+          return res.redirect(`http://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${callbackURL}&response_type=code&scope=activity:read_all&state=${state}`)
+          }
+          console.log(req.sessionID)
         res.redirect('/todos')
       },
       stravaCallback: async (req, res, next) => {
+        console.log(req.sessionID)
         try{
             console.log(req.query.code)
+            console.log(req.session)
             await User.findOneAndUpdate({_id:req.user.id},{
                 userStravaToken: req.query.code
             })
@@ -269,21 +285,11 @@ module.exports = {
         catch(err){
             console.log(err)
         } 
-        res.redirect('/todos/getUserData') 
-    },       
-    getUserData: async (req , res) => {
         const userid = req.user.id
-    await fetch(`https://www.strava.com/oauth/token?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}&code=${req.user.userStravaToken}&grant_type=authorization_code`, {
-    method: 'POST',
-    headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-    }
-    })
-    .then(res => res.json())
-    .then(data =>{updateUserWithData(data, userid)})
-    res.redirect('/todos')
-    },
+        const userStravaToken = req.query.code
+        getUserData(userid, userStravaToken)
+        res.redirect('/todos') 
+    },       
     getActivities: async (req, res) =>{
         const userid = req.user.id
     await fetch(`https://www.strava.com/api/v3/athlete/activities?access_token=${req.user.userStravaAccess}`)

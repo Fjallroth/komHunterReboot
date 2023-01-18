@@ -9,6 +9,7 @@ const logger = require('morgan')
 const connectDB = require('./config/database')
 const mainRoutes = require('./routes/main')
 const todoRoutes = require('./routes/todos')
+let cors = require('cors')
 
 require('dotenv').config({path: './config/.env'})
 
@@ -16,7 +17,7 @@ require('dotenv').config({path: './config/.env'})
 require('./config/passport')(passport)
 
 connectDB()
-
+app.use(cors())
 app.set('view engine', 'ejs')
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: true }))
@@ -26,7 +27,10 @@ app.use(logger('dev'))
 app.use(
     session({
       secret: 'keyboard cat',
-      resave: false,
+      cookie: { maxAge: 60000,
+                sameSite: "lax"
+      },
+      resave: true,
       saveUninitialized: false,
       store: new MongoStore({ mongooseConnection: mongoose.connection }),
     })
