@@ -6,7 +6,7 @@ module.exports = {
       } else {
         console.log(req.sessionID)
         console.log("user not authenicated")
-        res.redirect('/')
+        return res.redirect('/')
       }
     }
   }

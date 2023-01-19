@@ -28,7 +28,7 @@ app.use(
     session({
       secret: 'keyboard cat',
       cookie: { maxAge: 60000,
-                sameSite: "lax"
+                sameSite: 'lax'
       },
       resave: true,
       saveUninitialized: false,

@@ -266,13 +266,13 @@ module.exports = {
     },
     linkStrava: (req, res, next) => {
         if (req.user) {
+            console.log(req.session)
+            const state = req.sessionID;
+            return res.redirect(`http://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${callbackURL}&response_type=code&scope=activity:read_all&state=${state}`)
+            }
             console.log(req.sessionID)
-          const state = req.sessionID;
-          return res.redirect(`http://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${callbackURL}&response_type=code&scope=activity:read_all&state=${state}`)
-          }
-          console.log(req.sessionID)
-        res.redirect('/todos')
-      },
+          res.redirect('/todos')
+        },
       stravaCallback: async (req, res, next) => {
         console.log(req.sessionID)
         try{
@@ -284,6 +284,8 @@ module.exports = {
         }
         catch(err){
             console.log(err)
+            res.sendStatus(500);
+            return;
         } 
         const userid = req.user.id
         const userStravaToken = req.query.code
