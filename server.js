@@ -27,7 +27,7 @@ app.use(logger('dev'))
 app.use(
     session({
       secret: 'keyboard cat',
-      cookie: { maxAge: 60000,
+      cookie: { maxAge: 60000*60*8,
                 sameSite: 'lax'
       },
       resave: true,

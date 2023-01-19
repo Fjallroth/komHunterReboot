@@ -33,72 +33,30 @@ async function komHunter(segmentid, userid){
             timeOffXom: timeOffXom,
             percentageOff:  percentageOff
             })
-        if(userTime == xomTime){
-            console.log("You have the KOM")
-            await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                rank: segment[0].leaderBoard[0].rank   
-                })
-        }
-        else if(userTime <= segment[0].leaderBoard[1].timeInSeconds){
-            await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                rank: segment[0].leaderBoard[1].rank   
-                })
-        }
-        else if(userTime <= segment[0].leaderBoard[2].timeInSeconds){
-            await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                rank: segment[0].leaderBoard[2].rank  
-                })
-        }
-        else if(userTime <= segment[0].leaderBoard[3].timeInSeconds){
-            await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                rank: segment[0].leaderBoard[3].rank  
-                })
-        }
-        else if(userTime <= segment[0].leaderBoard[4].timeInSeconds){
-            await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                rank: segment[0].leaderBoard[4].rank  
-                })
-        }
-        else if(userTime <= segment[0].leaderBoard[5].timeInSeconds){
-            await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                rank: segment[0].leaderBoard[5].rank  
-                })
-        }
-        else if(userTime <= segment[0].leaderBoard[6].timeInSeconds){
-            await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                rank: segment[0].leaderBoard[6].rank  
-                })
-        }
-        else if(userTime <= segment[0].leaderBoard[7].timeInSeconds){
-            await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                rank: segment[0].leaderBoard[7].rank  
-                })
-        }
-        else if(userTime <= segment[0].leaderBoard[8].timeInSeconds){
-            await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                rank: segment[0].leaderBoard[8].rank  
-                })
-        }
-         else if(userTime <= segment[0].leaderBoard[9].timeInSeconds){
-             await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                 rank: segment[0].leaderBoard[9].rank  
-                })
-         }
-        else{
-            const tenthTime = segment[0].leaderBoard[9].timeInSeconds
-            const timeOffTenth = userTime - tenthTime
-            const percentageOffLB = (((timeOffTenth) / tenthTime)*100).toFixed(1)
-            await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-                timeOffLB: timeOffTenth, 
-                percentOffLB: percentageOffLB,
-                rank: 11
-                })
+            let rank = 11;
+            for (let i = 0; i < segment[0].leaderBoard.length; i++) {
+                if (userTime <= segment[0].leaderBoard[i].timeInSeconds) {
+                    rank = segment[0].leaderBoard[i].rank;
+                    break;
+                }
+            }
+    
+            await Todo.findOneAndUpdate({ userId: userid, segmentId: segmentid }, { rank });
+    
+            if (rank < 11) {
+                console.log("You are on the leaderboard");
+            } else {
+                const tenthTime = segment[0].leaderBoard[9].timeInSeconds;
+                const timeOffTenth = userTime - tenthTime;
+                const percentageOffLB = (((timeOffTenth) / tenthTime) * 100).toFixed(1);
+                await Todo.findOneAndUpdate({ userId: userid, segmentId: segmentid }, {
+                    timeOffLB: timeOffTenth,
+                    percentOffLB: percentageOffLB,
+                    rank: 11
+                });
+            }
         }
     }
-    else{
-        console.log(`There was something wrong with the leader array on segment ${segmentid}`)
-    }
-} 
 async function getXom(segmentid, userid){
     const url = await `https://www.strava.com/segments/${segmentid}`
     try{
