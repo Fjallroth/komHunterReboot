@@ -10,7 +10,7 @@ A Strava data analysis tool for cyclists looking to improve their performance an
 
 # Technologies
 - ejs
-- nodejs, mostly utilising express and passport
+- nodejs:
     - bcrypt, 
     - connect-mongo, 
     - dotenv, ejs, express, 
