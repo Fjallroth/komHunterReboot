@@ -28,13 +28,13 @@ A Strava data analysis tool for cyclists looking to improve their performance an
 - cheerio web scraping module (web scraping was used as an alternative to the Strava API as using the API in this case would send too many calls, the Strava API is limited to 100 calls every 15 minutes and users typically have thousands of segments)
 
 # Usage
-Clone the repo
-`git clone https://github.com/Fjallroth/komHunterReboot.git`
-Install dependencies
-Create a .env file with your mongoDB connection string and strava API information
-Run the app
-Use the app by creating an account, log in and authorize access to Strava data
-Note: This is a work in progress, and is not yet ready for production use.
+- Clone the repo
+- `git clone https://github.com/Fjallroth/komHunterReboot.git`
+- Install dependencies
+- Create a .env file with your mongoDB connection string and strava API information
+- Run the app
+- Use the app by creating an account, log in and authorize access to Strava data
+- Note: This is a work in progress, and is not yet ready for production use.
 
 # Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
