@@ -14,6 +14,11 @@
             <li class='todoItem' data-id='<%=el._id%>'>
                 <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.segmentName %></span>
                 <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.segmentId %></span>
+                <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.percentageOff %></span>
+                <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.timeOffXom %></span>
+                <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.percentOffLB%></span>
+                <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.timeOffLB%></span>
+                <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.rank %></span>
                 <span class='del'> Delete </span>
             </li>
     <% }) %>    
@@ -27,7 +32,7 @@
     </form>
 
     <a href="/logout">Logout</a>
-    <a href="todos/linkStrava">Link your Strava Account!</a>
+    <a href="todos/getlink">Link your Strava Account!</a>
     <a href="todos/getActivities">Get activities!</a>
     <a href="todos/getSegments">Get effort list!</a>
     

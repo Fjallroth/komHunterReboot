@@ -20,9 +20,9 @@ function hmsToSecondsOnly(str) {
 }
 async function komHunter(segmentid, userid){
         const segment = await Todo.find({userId: userid, segmentId: segmentid })
-        if(segment[0].leaderBoard.length >=10){
-        console.log(segmentid)
-        console.log(segment[0].segmentName)
+        if(segment[0].leaderBoard.length >=3){
+        //console.log(segmentid)
+        //console.log(segment[0].segmentName)
         console.log(segment[0].leaderBoard)
         const xomTime = segment[0].leaderBoard[0].timeInSeconds
         const userTime = segment[0].segmentTime
@@ -45,8 +45,12 @@ async function komHunter(segmentid, userid){
     
             if (rank < 11) {
                 console.log("You are on the leaderboard");
-            } else {
-                const tenthTime = segment[0].leaderBoard[9].timeInSeconds;
+            } else if((typeof leaderboard == "undefined")){
+                console.log(`problem with leaderboard for ${segmentid}`)
+            }
+                else{
+                const length = leaderboard.length
+                const tenthTime = segment[0].leaderBoard[length].timeInSeconds;
                 const timeOffTenth = userTime - tenthTime;
                 const percentageOffLB = (((timeOffTenth) / tenthTime) * 100).toFixed(1);
                 await Todo.findOneAndUpdate({ userId: userid, segmentId: segmentid }, {
@@ -57,34 +61,52 @@ async function komHunter(segmentid, userid){
             }
         }
     }
-async function getXom(segmentid, userid){
-    const url = await `https://www.strava.com/segments/${segmentid}`
-    try{
-        const response = await axios.get(url);
-        const $ = cheerio.load(response.data);
-        const leaders = []
-        const atags =$('tr').each((i, el) =>{
-            const item =$(el).text()
-            const items =item.split('\n')
-            if(items.toString().includes(':')){
-            const rank = (parseInt(items.toString().split(',').slice(1,2)))
-            const name = (items.toString().split(',').slice(2,3).toString())
-            const time = (items.toString().split(',').slice(-2,-1).toString())
-            const timeInSeconds = hmsToSecondsOnly(time)
-            const contender = {timeInSeconds, rank, name}
-            leaders.push(contender)
+    async function getXom(segmentid, userid){
+        const url = `https://www.strava.com/segments/${segmentid}`
+        //console.log(url)
+        const retries = 5;
+        const delay = 1000;
+    
+        for (let i = 0; i <= retries; i++) {
+            try{
+                const response = await axios.get(url);
+                const $ = cheerio.load(response.data);
+                const leaders = []
+                const atags =$('tr').each((i, el) =>{
+                    const item =$(el).text()
+                    const items =item.split('\n')
+                    if(items.toString().includes('W')){
+                    const rank = (parseInt(items.toString().split(',').slice(1,2)))
+                    const name = (items.toString().split(',').slice(2,3).toString())
+                    const time = (items.toString().split(',').slice(-2,-1).toString())
+                    const timeInSeconds = hmsToSecondsOnly(time)
+                    const contender = {timeInSeconds, rank, name}
+                    //console.log(contender)
+                    leaders.push(contender)
+                }
+                })
+                if(leaders.length>9){
+                await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
+                    leaderBoard: leaders    
+                    })
+                console.log(leaders)}
+                else {
+                    console.log(`Not enough leaders, retrying in ${delay}ms`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+                break;
+            }
+            catch(error){
+                console.error(`Error: ${error} Retrying...`);
+                if (i === retries) {
+                    console.error("Maximum retries exceeded. Aborting.")
+                }
+            }
         }
-        })
-        if(leaders.length>1){
-        await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
-            leaderBoard: leaders    
-            })
-        console.log(leaders)}
     }
-    catch(error){
-        console.error(error);
-    }
-}
+
+    
+
 async function updatePR(segmentid, newSegmentTime, userid){
     await Todo.findOneAndUpdate({userId:userid, segmentId: segmentid}, {
     segmentTime: newSegmentTime    
@@ -120,8 +142,10 @@ async function listActivities(data, userid){
     } 
 }}
 async function getActivitySegments(data, userid){
+        const delay = 100
           const efforts = data.segment_efforts
-          console.log(data)
+          //console.log(data)
+          if(typeof efforts !== "undefined"){
           for(let i=0; i < efforts.length ; i++){ 
             const todoItems = await Todo.find({userId:userid, segmentId: efforts[i].segment.id })
             const segmentid = efforts[i].segment.id
@@ -132,10 +156,11 @@ async function getActivitySegments(data, userid){
                 segmentTime: efforts[i].elapsed_time, 
                 completed: false, 
                 userId: userid})
-                getXom(efforts[i].segment.id, userid)
-                komHunter(segmentid, userid)
-                
-                console.log('Effort has been added!')
+
+              await new Promise((resolve) => setTimeout(resolve, delay));
+        await getXom(efforts[i].segment.id, userid)
+        await komHunter(segmentid, userid)                   
+        console.log('Effort has been added!')
         }
             else{
                 if(todoItems[0].segmentTime > efforts[i].elapsed_time){
@@ -143,22 +168,27 @@ async function getActivitySegments(data, userid){
                     const segmentid = efforts[i].segment.id
                     updatePR(segmentid, newSegmentTime, userid)
                     console.log(`${efforts[i].segment.name} now has a faster time of ${efforts[i].elapsed_time}`)
-                    getXom(efforts[i].segment.id, userid)
-                    komHunter(segmentid, userid)
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+                    await getXom(efforts[i].segment.id, userid)
+                    await komHunter(segmentid, userid)
                     
                     }
                     
                 else{
                     console.log(`${efforts[i].segment.id} is already in the user activity list`)
-                    getXom(efforts[i].segment.id, userid)
-                    komHunter(segmentid, userid)
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+                    await getXom(efforts[i].segment.id, userid)
+                    await komHunter(segmentid, userid)
                     continue
                 }
                 
             } 
-            console.log(todoItems)
+            //console.log(todoItems)
           }
-}
+    }
+else{
+    console.log("API rate limit exceeded, come back in an hour and try again")
+}}
 async function getUserData(userid, userStravaToken){
 await fetch(`http://www.strava.com/oauth/token?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}&code=${userStravaToken}&grant_type=authorization_code`, {
 method: 'POST',
@@ -174,9 +204,17 @@ module.exports = {
     getTodos: async (req,res)=>{
         console.log(req.user)
         try{
-            const todoItems = await Todo.find({userId:req.user.id})
+            const todoItems = await Todo.find({userId:req.user.id}).sort({rank: 1})
             const itemsLeft = await Todo.countDocuments({userId:req.user.id,completed: false})
             res.render('todos.ejs', {todos: todoItems, left: itemsLeft, user: req.user})          
+        }catch(err){
+            console.log(err)
+        }
+    },
+    getlinkpage: async (req,res)=>{
+        console.log(req.user)
+        try{
+            res.render('stravalink.ejs')          
         }catch(err){
             console.log(err)
         }
