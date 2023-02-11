@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "css": "npx tailwindcss -i ./src/input.css -o ./public/css/output.css --minify --watch"
   },
   "author": "",
   "license": "MIT",
@@ -27,6 +28,20 @@
     "nodemon": "^2.0.7",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
-    "validator": "^13.6.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^2.1.3",
+    "validator": "^13.6.0",
+    "@release-it/conventional-changelog": "1.1.4",
+    "@tailwindcss/custom-forms": "0.2.1",
+    "autoprefixer": "9.8.0",
+    "color": "3.1.2",
+    "commitizen": "4.1.2",
+    "cssnano": "4.1.10",
+    "cz-conventional-changelog": "3.2.0",
+    "postcss-cli": "7.1.1",
+    "release-it": "13.6.4",
+    "tailwindcss": "1.4.6",
+    "tailwindcss-multi-theme": "1.0.3"
   }
 }
