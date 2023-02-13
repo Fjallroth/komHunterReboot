@@ -23,4 +23,10 @@ router.get('/getActivities', ensureAuth, todosController.getActivities)
 
 router.get('/getSegments', ensureAuth, todosController.getSegments)
 
+router.get('/sortTimeOff', ensureAuth, todosController.getsortTimeOff)
+
+router.get('/sortSegments', ensureAuth, todosController.getsortSegment)
+
+
+
 module.exports = router

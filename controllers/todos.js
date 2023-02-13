@@ -21,8 +21,6 @@ function hmsToSecondsOnly(str) {
 async function komHunter(segmentid, userid){
         const segment = await Todo.find({userId: userid, segmentId: segmentid })
         if(segment[0].leaderBoard.length >=3){
-        //console.log(segmentid)
-        //console.log(segment[0].segmentName)
         console.log(segment[0].leaderBoard)
         const xomTime = segment[0].leaderBoard[0].timeInSeconds
         const userTime = segment[0].segmentTime
@@ -205,6 +203,26 @@ module.exports = {
         console.log(req.user)
         try{
             const todoItems = await Todo.find({userId:req.user.id}).sort({percentageOff: 1})
+            const itemsLeft = await Todo.countDocuments({userId:req.user.id,completed: false})
+            res.render('todos.ejs', {todos: todoItems, left: itemsLeft, user: req.user})          
+        }catch(err){
+            console.log(err)
+        }
+    },
+    getsortTimeOff: async (req,res)=>{
+        console.log(req.user)
+        try{
+            const todoItems = await Todo.find({userId:req.user.id}).sort({timeOffXom: 1})
+            const itemsLeft = await Todo.countDocuments({userId:req.user.id,completed: false})
+            res.render('todos.ejs', {todos: todoItems, left: itemsLeft, user: req.user})          
+        }catch(err){
+            console.log(err)
+        }
+    },
+    getsortSegment: async (req,res)=>{
+        console.log(req.user)
+        try{
+            const todoItems = await Todo.find({userId:req.user.id}).sort({segmentName: 1})
             const itemsLeft = await Todo.countDocuments({userId:req.user.id,completed: false})
             res.render('todos.ejs', {todos: todoItems, left: itemsLeft, user: req.user})          
         }catch(err){

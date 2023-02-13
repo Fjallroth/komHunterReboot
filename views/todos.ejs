@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html :class="{ 'theme-dark': dark }" x-data="data()" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tables - Windmill Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/./assets/css/tailwind.output.css" />
+
+  </head>
+  <body>
+    <div
+      class="flex h-screen bg-gray-50 dark:bg-gray-900"
+      :class="{ 'overflow-hidden': isSideMenuOpen}"
+    >
+      <!-- Backdrop -->
+      <!-- <div
+        x-show="isSideMenuOpen"
+        x-transition:enter="transition ease-in-out duration-150"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in-out duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-10 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center"
+      ></div> -->
+      
+      <div class="flex flex-col flex-1 w-full">
+      
+        <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
+          <div
+            class="container flex items-center justify-end h-full px-6 mx-auto text-purple-600 dark:text-purple-300 "
+          >
+
+              <!-- Theme toggler -->
+              <li class="flex">
+                <button
+                  class="rounded-md focus:outline-none focus:shadow-outline-purple"
+                  @click="toggleTheme"
+                  aria-label="Toggle color mode"
+                >
+                  <template x-if="!dark">
+                    <svg
+                      class="w-5 h-5"
+                      aria-hidden="true"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
+                      ></path>
+                    </svg>
+                  </template>
+                  <template x-if="dark">
+                    <svg
+                      class="w-5 h-5"
+                      aria-hidden="true"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                        clip-rule="evenodd"
+                      ></path>
+                    </svg>
+                  </template>
+                </button>
+              </li>
+              
+              
+              <!-- Profile menu -->
+              
+                <a href="todos/linkStrava" class="flex align-end px-10">Link your Strava Account!</a>
+                <a href="/logout" class="flex align-end px-10">Logout</a>
+                <button
+                  class="align-end rounded-full focus:shadow-outline-purple focus:outline-none"
+                  aria-label="Account"
+                  aria-haspopup="true"
+                >
+                  <a href="<%= `https://www.strava.com/athletes/${user.userStravaAccount}`%>" target="_blank">
+                    <img
+                    class="object-cover w-8 h-8 rounded-full"
+                    src="<%= user.userStravaPic %>"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </a>
+                </button>
+                </template>
+              
+            </ul>
+          </div>
+        </header>
+        <main class="h-full pb-16 overflow-y-auto">
+          <div class="container px-6 mx-auto ">
+            <h2
+              class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200"
+            >
+              KOM Hunter
+            </h2>
+            <!-- CTA -->
+            <div class="">
+            <a
+              class="inline-block p-4 mb-8 text-sm font-semibold text-purple-100 bg-purple-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-purple mr-60"
+              href="todos/getActivities"
+            >
+                <span>Get activities!</span>
+            </a>
+            <a
+              class="inline-block p-4 mb-8 text-sm font-semibold text-purple-100 bg-purple-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-purple mx-60"
+              href="todos/getSegments"
+            >
+                <span>Get segment list!</span>
+            </a>
+        </div>
+            <!-- With avatar -->
+            <h4
+              class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300"
+            >
+              Your segments!
+            </h4>
+            <div class="w-full mb-8 overflow-hidden rounded-lg shadow-xs">
+              <div class="w-full overflow-x-auto">
+                <table class="w-full whitespace-no-wrap">
+                  <thead>
+                    <tr
+                      class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
+                    >
+                      <th class="px-4 py-3"> <a href="/todos/sortSegments"> Segment</a></th>
+                      <th class="px-4 py-3">Segment ID</a></th>
+                      <th class="px-4 py-3"><a href="/todos/"> % off KOM</a></th>
+                      <th class="px-4 py-3"><a href="/todos/sortTimeOff"> time off KOM</a></th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800 "
+                  >
+
+                  <% todos.forEach( el => { %>
+                    <% if(el.percentageOff){ %>
+                    <tr class="text-gray-700 dark:text-gray-400" data-id='<%=el._id%>'>
+                        <td class="px-4 py-3 text-sm">
+                            <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.segmentName %></span>
+                          </td>
+                      <td class="px-4 py-3 text-sm">
+                        <a href="<%= `https://www.strava.com/segments/${el.segmentId}`%>" target="_blank" class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.segmentId %></a>
+                      </td>
+                      <td class="px-4 py-3 text-sm">
+                        <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.percentageOff %></span>
+                      </td>
+                      <td class="px-4 py-3 text-xs">
+                        <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.timeOffXom %></span>
+                      </td>
+                    </tr>
+                    <% }else{return}}) %>
+                  </tbody>
+                </table>
+              </div>  
+                  
+    <!-- <h2><%= user.userName %> has <%= left %> things left to do.</h2> -->
+
+    <!-- <form action="/todos/createTodo" method='POST'>
+        <input type="text" placeholder="Enter Todo Item" name='todoItem'>
+        <input type="submit">
+    </form> -->
+
+    
+    
+
+    
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
